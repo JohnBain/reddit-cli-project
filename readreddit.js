@@ -4,10 +4,9 @@ var table = require('cli-table');
 var inquirer = require('inquirer');
 var util = require('util');
 var parseReddit = require('./reddit.js')
+var Table = require('cli-table');
 const imageToAscii = require('image-to-ascii')
     , stringify = require("asciify-pixel-matrix");
-
-var Table = require('cli-table');
 
 // instantiate 
 var table = new Table({
@@ -45,7 +44,8 @@ function reddit() {
         choices: menuChoices
     }).then(
         function(answers) {
-            console.log(answers);
+            if (answers.menu === "PRINT");
+                
         }
     );
 
