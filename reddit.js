@@ -8,8 +8,7 @@ This function should "return" the default homepage posts as an array of objects
 function getHomepage(callback) {
   request("https://www.reddit.com/.json", function(err, result) {
     var redditHomepage = JSON.parse(result.body);
-    callback(redditHomepage.data.children);
-  });
+    callback(redditHomepage.data.children)  });
 }
 
 /*
@@ -17,6 +16,7 @@ getHomepage(function(res){
   console.log(util.inspect(res, { showHidden: true, depth: null, colors: true }));
 });
 */
+
 
 /*
 This function should "return" the default homepage posts as an array of objects.
@@ -97,9 +97,22 @@ function getSubreddits(callback) {
   // Load reddit.com/subreddits.json and call back with an array of subreddits
 }
 
-getSubreddits(function(res){
+function getUser(user, callback) {
+    var baseReddit = "https://www.reddit.com/u/";
+    baseReddit += user + "/" + "/.json";
+    request(baseReddit, function(err, result) {
+        var redditHomepage = JSON.parse(result.body);
+        callback(redditHomepage.data.children);
+  });
+}
+
+/* getUser("spez", function(res){
   console.log(util.inspect(res, { showHidden: true, depth: null, colors: true }));
-})
+})*/
+
+/*getSubreddits(function(res){
+  console.log(util.inspect(res, { showHidden: true, depth: null, colors: true }));
+})*/
 
 // Export the API
 module.exports = {
@@ -107,5 +120,6 @@ module.exports = {
   getSortedHomepage : getSortedHomepage,
   getSubreddit : getSubreddit,
   getSortedSubreddit : getSortedSubreddit,
-  getSubreddits : getSubreddits
+  getSubreddits : getSubreddits,
+  getUser : getUser
 };
