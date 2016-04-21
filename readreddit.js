@@ -71,20 +71,26 @@ function reddit() {
             prompt.start();
             prompt.message = "What user shall we look up?";
             prompt.get(['user'], function (err, result) {
-                parseReddit.getUser(result.word, console.log)
+                parseReddit.getUser(result.user, function(result){
+                    var table = new Table;
+                    result.forEach(function(each){
+                        table.push(each.data.author + " || " + each.data.body)
+                    });
+                    reddit();
+                })
             })
-            
         }
 
         if (answers.menu === "PRINT") {
             console.log("Placeholder text")
         }
 
-        reddit();
+       
+
 
     });
 
-
+    
 
 }
 

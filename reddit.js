@@ -98,15 +98,26 @@ function getSubreddits(callback) {
 }
 
 function getUser(user, callback) {
-    var baseReddit = "https://www.reddit.com/u/";
+    var baseReddit = "https://www.reddit.com/user/";
     baseReddit += user + "/" + "/.json";
     request(baseReddit, function(err, result) {
-        var redditHomepage = JSON.parse(result.body);
-        callback(redditHomepage.data.children);
+        var userPage = JSON.parse(result.body);
+        callback(userPage.data.children);
   });
 }
 
-/* getUser("spez", function(res){
+function userPosts(array){
+  var postArray = [];
+  array.forEach(function(each){
+    postArray.push({author : each.data.author, body: each.data.body});
+  });
+  console.log(postArray);
+}
+
+//getUser("spez", userPosts);
+
+
+/*getUser("spez", function(res){
   console.log(util.inspect(res, { showHidden: true, depth: null, colors: true }));
 })*/
 
@@ -123,3 +134,5 @@ module.exports = {
   getSubreddits : getSubreddits,
   getUser : getUser
 };
+
+//Again, children[0] should show the first post.
