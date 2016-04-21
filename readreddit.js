@@ -8,13 +8,14 @@ const imageToAscii = require('image-to-ascii'),
     stringify = require("asciify-pixel-matrix");
 
 // instantiate 
-var table = new Table({
-    head: ['TH 1 label', 'TH 2 label'],
-    colWidths: [100, 200]
-});
 
 // table is an Array, so you can `push`, `unshift`, `splice` and friends 
 
+function printTableandReturnToMenu(aTable, callback) {
+    console.log(aTable.toString())
+
+    callback();
+}
 
 
 function reddit() {
@@ -42,19 +43,19 @@ function reddit() {
         message: 'What do you want to do?',
         choices: menuChoices
     }).then(function(answers) {
-        var newQuestion = [];
         if (answers.menu === "HOMEPAGE") {
+            var newQuestion = [];
             console.log(answers)
             parseReddit.getHomepage(function(res) {
-                        res.forEach(function(post) {
+                res.forEach(function(post) {
                         newQuestion.push({
                             name: post.data.title,
                             value: post.data.url
                         })
                     }) //End of forEach.
-              
 
-                
+
+
                 inquirer.prompt({
                     type: 'list',
                     name: 'choices',
@@ -66,32 +67,63 @@ function reddit() {
             });
 
         }
-        
-        if (answers.menu === "USER") {
+
+        if (answers.menu === "SUBREDDIT") {
             prompt.start();
-            prompt.message = "What user shall we look up?";
-            prompt.get(['user'], function (err, result) {
-                parseReddit.getUser(result.user, function(result){
-                    var table = new Table;
-                    result.forEach(function(each){
-                        table.push(each.data.author + " || " + each.data.body)
-                    });
-                    reddit();
+            prompt.message = "What subreddit shall we look up?";
+            prompt.get(['subreddit'], function(err, result) {
+                parseReddit.getSubreddit(result.subreddit, function(res) {
+                    var newQuestion = []
+                    res.forEach(function(post) {
+                            newQuestion.push({
+                                name: post.data.title,
+                                value: post.data.url        //Make this something cooler.
+                            })
+                        }) //End of forEach.
+
+
+
+                    inquirer.prompt({
+                        type: 'list',
+                        name: 'choices',
+                        message: 'CHOOSE',
+                        choices: newQuestion
+                    }).then(function(answers) {
+                        console.log(answers.choices)
+                        reddit();
+                    })
+                    
                 })
             })
         }
+
+
+        if (answers.menu === "USER") {
+            prompt.start();
+            prompt.message = "What user shall we look up?";
+            prompt.get(['user'], function(err, result) {
+                parseReddit.getUser(result.user, function(result) {
+                    var table = new Table();
+                    result.forEach(function(each) {
+                        table.push([each.data.author, each.data.body])
+                    });
+                    printTableandReturnToMenu(table, reddit);
+                })
+            })
+        } //end of USER
 
         if (answers.menu === "PRINT") {
             console.log("Placeholder text")
         }
 
-       
+
 
 
     });
 
-    
+
 
 }
+
 
 reddit();
