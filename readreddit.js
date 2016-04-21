@@ -4,8 +4,8 @@ var inquirer = require('inquirer');
 var util = require('util');
 var parseReddit = require('./reddit.js')
 var Table = require('cli-table');
-const imageToAscii = require('image-to-ascii')
-    , stringify = require("asciify-pixel-matrix");
+const imageToAscii = require('image-to-ascii'),
+    stringify = require("asciify-pixel-matrix");
 
 // instantiate 
 var table = new Table({
@@ -42,32 +42,40 @@ function reddit() {
         message: 'What do you want to do?',
         choices: menuChoices
     }).then(function(answers) {
-            var newQuestion = [];
-            if (answers.menu === "HOMEPAGE") {
-                parseReddit.getHomepage(parseReddit.mainDisplay);
-            }
-            
-            if (answers.menu === "PRINT"){
-                console.log("Placeholder text")
-            }
-            
-            reddit();
-            
+        var newQuestion = [];
+        if (answers.menu === "HOMEPAGE") {
+            console.log(answers)
+            parseReddit.getHomepage(function(res) {
+                res.forEach(function(post) {
+                        newQuestion.push({
+                            name: post.data.title,
+                            value: post.data.url
+                        })
+                    } //End of forEach.
+
+                )
+                inquirer.prompt({
+                    type: 'list',
+                    name: 'choices',
+                    message: 'CHOOSE',
+                    choices: newQuestion
+                }).then(function(answers) {
+                    console.log(answers.choices)
+                })
+            });
+
         }
-    );
-        
+
+        if (answers.menu === "PRINT") {
+            console.log("Placeholder text")
+        }
+
+        reddit();
+
+    });
+
 
 
 }
 
 reddit();
-
-/*
-Is this a closure?
-var redditVar = parseReddit.getSubreddits(function(res){
-  return res;
-})
-
-console.log(redditVar)
-
-*/
