@@ -46,14 +46,15 @@ function reddit() {
         if (answers.menu === "HOMEPAGE") {
             console.log(answers)
             parseReddit.getHomepage(function(res) {
-                res.forEach(function(post) {
+                        res.forEach(function(post) {
                         newQuestion.push({
                             name: post.data.title,
                             value: post.data.url
                         })
-                    } //End of forEach.
+                    }) //End of forEach.
+              
 
-                )
+                
                 inquirer.prompt({
                     type: 'list',
                     name: 'choices',
@@ -64,6 +65,15 @@ function reddit() {
                 })
             });
 
+        }
+        
+        if (answers.menu === "USER") {
+            prompt.start();
+            prompt.message = "What user shall we look up?";
+            prompt.get(['user'], function (err, result) {
+                parseReddit.getUser(result.word, console.log)
+            })
+            
         }
 
         if (answers.menu === "PRINT") {

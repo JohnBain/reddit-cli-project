@@ -8,14 +8,14 @@ This function should "return" the default homepage posts as an array of objects
 function getHomepage(callback) {
   request("https://www.reddit.com/.json", function(err, result) {
     var redditHomepage = JSON.parse(result.body);
-    callback(redditHomepage.data.children[0].data)  });
+    callback(redditHomepage.data.children)  });
 }
 
 /*
 getHomepage(function(res){
   console.log(util.inspect(res, { showHidden: true, depth: null, colors: true }));
-});
-*/
+});*/
+
 
 
 /*
