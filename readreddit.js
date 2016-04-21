@@ -1,5 +1,4 @@
 var prompt = require('prompt');
-var image = require('image-to-ascii');
 var table = require('cli-table');
 var inquirer = require('inquirer');
 var util = require('util');
@@ -42,12 +41,38 @@ function reddit() {
         name: 'menu',
         message: 'What do you want to do?',
         choices: menuChoices
-    }).then(
-        function(answers) {
-            if (answers.menu === "PRINT");
-                
+    }).then(function(answers) {
+            var newQuestion = [];
+            if (answers.menu === "HOMEPAGE") {
+                console.log(answers)
+                //parseReddit.getHomepage(parseReddit.mainDisplay); -- if we had gone with this, we would have all the non-challenge requirements done.
+                parseReddit.getHomepage(function(res){
+                    res.forEach(function(x){
+                        if(x.data.thumbnail.charAt(0) === "h") {
+                        newQuestion.push({name: x.data.title, value: parseReddit.imageParseAndDisplay(x.data.thumbnail)})}    //This breaks it completely. 
+                         }
+                    )
+                    inquirer.prompt({
+                    type: 'list',
+                    name: 'choices',
+                    message: 'CHOOSE',
+                    choices: newQuestion
+                }).then(function(answers) {
+                    console.log(answers.choices)
+                })
+                });
+
+            }
+            
+            if (answers.menu === "PRINT"){
+                console.log("Placeholder text")
+            }
+            
+            reddit();
+            
         }
     );
+        
 
 
 }
