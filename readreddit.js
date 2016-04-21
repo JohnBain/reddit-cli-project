@@ -10,18 +10,19 @@ const imagetoAscii = require('image-to-ascii'),
 // instantiate 
 
 // table is an Array, so you can `push`, `unshift`, `splice` and friends 
+var promiseArray = []
 
 function parseImageOrBody(object, callback) {
     if (object.data.thumbnail.slice(-3) === "jpg") {
         imagetoAscii(object.data.thumbnail, {
             bg: true
         }, function(err, result) {                  //This is a place for promises.
-            callback(result);
+            promiseArray.push(new Promise(function(resolve, reject) { resolve(object.data.thumbnail) }))
         });
     }
 
     else {
-        callback(object.data.selftext);
+        promiseArray.push(new Promise(function(resolve, reject) { resolve(object.data.selftext) }))
     }
 }
 
@@ -103,7 +104,7 @@ function reddit() {
                         message: 'CHOOSE',
                         choices: newQuestion
                     }).then(function(answers) {
-                        console.log(answers.choices)
+                        console.log(promiseArray)
                         reddit();
                     })
 
