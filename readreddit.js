@@ -44,24 +44,7 @@ function reddit() {
     }).then(function(answers) {
             var newQuestion = [];
             if (answers.menu === "HOMEPAGE") {
-                console.log(answers)
-                //parseReddit.getHomepage(parseReddit.mainDisplay); -- if we had gone with this, we would have all the non-challenge requirements done.
-                parseReddit.getHomepage(function(res){
-                    res.forEach(function(x){
-                        if(x.data.thumbnail.charAt(0) === "h") {
-                        newQuestion.push({name: x.data.title, value: parseReddit.imageParseAndDisplay(x.data.thumbnail)})}    //This breaks it completely. 
-                         }
-                    )
-                    inquirer.prompt({
-                    type: 'list',
-                    name: 'choices',
-                    message: 'CHOOSE',
-                    choices: newQuestion
-                }).then(function(answers) {
-                    console.log(answers.choices)
-                })
-                });
-
+                parseReddit.getHomepage(parseReddit.mainDisplay);
             }
             
             if (answers.menu === "PRINT"){
