@@ -4,16 +4,29 @@ var inquirer = require('inquirer');
 var util = require('util');
 var parseReddit = require('./reddit.js')
 var Table = require('cli-table');
-const imageToAscii = require('image-to-ascii'),
+const imagetoAscii = require('image-to-ascii'),
     stringify = require("asciify-pixel-matrix");
 
 // instantiate 
 
 // table is an Array, so you can `push`, `unshift`, `splice` and friends 
 
+function parseImageOrBody(object, callback) {
+    if (object.data.thumbnail.slice(-3) === "jpg") {
+        imagetoAscii(object.data.thumbnail, {
+            bg: true
+        }, function(err, result) {                  //This is a place for promises.
+            callback(result);
+        });
+    }
+
+    else {
+        callback(object.data.selftext);
+    }
+}
+
 function printTableandReturnToMenu(aTable, callback) {
     console.log(aTable.toString())
-
     callback();
 }
 
@@ -63,6 +76,7 @@ function reddit() {
                     choices: newQuestion
                 }).then(function(answers) {
                     console.log(answers.choices)
+                    reddit();
                 })
             });
 
@@ -77,7 +91,7 @@ function reddit() {
                     res.forEach(function(post) {
                             newQuestion.push({
                                 name: post.data.title,
-                                value: post.data.url        //Make this something cooler.
+                                value: parseImageOrBody(post, console.log)
                             })
                         }) //End of forEach.
 
@@ -92,7 +106,7 @@ function reddit() {
                         console.log(answers.choices)
                         reddit();
                     })
-                    
+
                 })
             })
         }
