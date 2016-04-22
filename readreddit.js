@@ -46,6 +46,7 @@ function redditDisplay(callback) {
             choices: newQuestion
         }).then(function(answers) {
             parseDataObject(answers.choices)
+            reddit();
         });
     });
 }
@@ -58,11 +59,12 @@ function parseDataObject(dataObject){
         , stringify: true
 }, (err, converted) => {
     console.log(err || converted);
-    reddit();
+    
 });;
     }
     else{
-        console.log(dataObject.selftext)
+        console.log(dataObject) //I have absolutely no idea why this works
+        
     }
 }
 
@@ -108,7 +110,7 @@ function subredditDisplay(subreddit) {
             message: 'CHOOSE',
             choices: newQuestion
         }).then(function(answers) {
-            console.log(answers.choices)
+            parseDataObject(answers.choices)
             reddit();
         })
 
