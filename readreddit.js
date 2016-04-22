@@ -33,6 +33,45 @@ function redditDisplay(callback) {
         res.forEach(function(post) {
                 newQuestion.push({
                     name: post.data.title,
+                    value: post.data
+                })
+            }) //End of forEach.
+
+
+
+        inquirer.prompt({
+            type: 'list',
+            name: 'choices',
+            message: 'CHOOSE',
+            choices: newQuestion
+        }).then(function(answers) {
+            parseDataObject(answers.choices)
+        });
+    });
+}
+
+function parseDataObject(dataObject){
+    if (dataObject.domain === "i.imgur.com" && dataObject.url.slice(-4) != "gifv" && dataObject.url.slice(-3) != "gif"){
+        imagetoAscii(dataObject.thumbnail, {
+        colored: true
+        , bg: true
+        , stringify: true
+}, (err, converted) => {
+    console.log(err || converted);
+    reddit();
+});;
+    }
+    else{
+        console.log(dataObject.selftext)
+    }
+}
+
+function subredditsDisplay() {
+    var newQuestion = []
+    parseReddit.getSubreddits(function(res) {
+        res.forEach(function(post) {
+                newQuestion.push({
+                    name: post.data.display_name,
                     value: post.data.url
                 })
             }) //End of forEach.
@@ -45,19 +84,19 @@ function redditDisplay(callback) {
             message: 'CHOOSE',
             choices: newQuestion
         }).then(function(answers) {
-            console.log(answers.choices)
-            reddit();
+            subredditDisplay(answers.choices);
         });
     });
 }
-    
-function subredditsDisplay() {
-    var newQuestion = []
-    parseReddit.getSubreddits(function(res) {
+
+function subredditDisplay(subreddit) {
+    console.log(subreddit)
+    parseReddit.getSubreddit(subreddit, function(res) {
+        var newQuestion = []
         res.forEach(function(post) {
                 newQuestion.push({
-                    name: post.data.display_name,
-                    value: post.data.submit_text
+                    name: post.data.title,
+                    value: post.data.selftext       //This we will be where we choose to view an image instead.
                 })
             }) //End of forEach.
 
@@ -70,20 +109,13 @@ function subredditsDisplay() {
             choices: newQuestion
         }).then(function(answers) {
             console.log(answers.choices)
-            //subredditDisplay(newQuestion.name)
             reddit();
-        });
-    });
+        })
+
+    })
 }
 
-function subredditDisplay(subreddit){
-
-}
-
-
-
-
-
+/*
 function parseImageOrBody(object, callback) {
     var promiseArray = [];
     if (object.data.thumbnail.slice(-3) === "jpg") {
@@ -102,6 +134,7 @@ function parseImageOrBody(object, callback) {
         }))
     }
 }
+*/
 
 function reddit() {
     inquirer.prompt({
@@ -118,49 +151,28 @@ function reddit() {
             prompt.start();
             prompt.message = "What subreddit shall we look up?";
             prompt.get(['subreddit'], function(err, result) {
-                parseReddit.getSubreddit(result.subreddit, function(res) {
-                    var newQuestion = []
-                    res.forEach(function(post) {
-                            newQuestion.push({
-                                name: post.data.title,
-                                value: parseImageOrBody(post, console.log)
-                            })
-                        }) //End of forEach.
-
-
-
-                    inquirer.prompt({
-                        type: 'list',
-                        name: 'choices',
-                        message: 'CHOOSE',
-                        choices: newQuestion
-                    }).then(function(answers) {
-                        console.log(promiseArray)
-                        reddit();
-                    })
-
-                })
+                subredditDisplay(result.subreddit);
             })
         }
 
-        if (answers.menu === "SUBREDDITS"){
-             subredditsDisplay();  
+        if (answers.menu === "SUBREDDITS") {
+            subredditsDisplay();
         }
 
 
-            if (answers.menu === "USER") {
-                prompt.start();
-                prompt.message = "What user shall we look up?";
-                prompt.get(['user'], function(err, result) {
-                    parseReddit.getUser(result.user, function(result) {
-                        var table = new Table();
-                        result.forEach(function(each) {
-                            table.push([each.data.subreddit, each.data.score, each.data.body])
-                        });
-                        console.log(table.toString());
-                    })
+        if (answers.menu === "USER") {
+            prompt.start();
+            prompt.message = "What user shall we look up?";
+            prompt.get(['user'], function(err, result) {
+                parseReddit.getUser(result.user, function(result) {
+                    var table = new Table();
+                    result.forEach(function(each) {
+                        table.push([each.data.subreddit, each.data.score, each.data.body])
+                    });
+                    console.log(table.toString());
                 })
-            } //end of USER
+            })
+        } //end of USER
 
         if (answers.menu === "PRINT") {
             console.log("Placeholder text")

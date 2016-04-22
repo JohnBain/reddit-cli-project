@@ -47,7 +47,9 @@ This function should "return" the posts on the front page of a subreddit as an a
 */
 function getSubreddit(subreddit, callback) {
   // Load reddit.com/r/{subreddit}.json and call back with the array of posts
-  var baseReddit = "https://www.reddit.com/r/"
+  if (subreddit.charAt(0) != "/")
+    subreddit = "/r/" + subreddit
+  var baseReddit = "https://www.reddit.com"
   baseReddit += subreddit += "/.json"
   console.log(baseReddit)
   request(baseReddit, function(err, result) {
