@@ -7,50 +7,103 @@ var Table = require('cli-table');
 const imagetoAscii = require('image-to-ascii'),
     stringify = require("asciify-pixel-matrix");
 
-// instantiate 
+var menuChoices = [{
+    name: 'Show homepage',
+    value: 'HOMEPAGE'
+}, {
+    name: 'Show subreddit',
+    value: 'SUBREDDIT'
+}, {
+    name: 'List subreddits',
+    value: 'SUBREDDITS'
+}, {
+    name: 'Display user history',
+    value: 'USER'
+}, {
+    name: 'Print images from front page',
+    value: 'PRINT'
+}];
 
-// table is an Array, so you can `push`, `unshift`, `splice` and friends 
-var promiseArray = []
+
+
+
+function redditDisplay(callback) {
+    var newQuestion = []
+    callback(function(res) {
+        res.forEach(function(post) {
+                newQuestion.push({
+                    name: post.data.title,
+                    value: post.data.url
+                })
+            }) //End of forEach.
+
+
+
+        inquirer.prompt({
+            type: 'list',
+            name: 'choices',
+            message: 'CHOOSE',
+            choices: newQuestion
+        }).then(function(answers) {
+            console.log(answers.choices)
+            reddit();
+        });
+    });
+}
+    
+function subredditsDisplay() {
+    var newQuestion = []
+    parseReddit.getSubreddits(function(res) {
+        res.forEach(function(post) {
+                newQuestion.push({
+                    name: post.data.display_name,
+                    value: post.data.submit_text
+                })
+            }) //End of forEach.
+
+
+
+        inquirer.prompt({
+            type: 'list',
+            name: 'choices',
+            message: 'CHOOSE',
+            choices: newQuestion
+        }).then(function(answers) {
+            console.log(answers.choices)
+            //subredditDisplay(newQuestion.name)
+            reddit();
+        });
+    });
+}
+
+function subredditDisplay(subreddit){
+
+}
+
+
+
+
 
 function parseImageOrBody(object, callback) {
+    var promiseArray = [];
     if (object.data.thumbnail.slice(-3) === "jpg") {
         imagetoAscii(object.data.thumbnail, {
             bg: true
-        }, function(err, result) {                  //This is a place for promises.
-            promiseArray.push(new Promise(function(resolve, reject) { resolve(object.data.thumbnail) }))
+        }, function(err, result) { //This is a place for promises.
+            promiseArray.push(new Promise(function(resolve, reject) {
+                resolve(object.data.thumbnail)
+            }))
         });
     }
 
     else {
-        promiseArray.push(new Promise(function(resolve, reject) { resolve(object.data.selftext) }))
+        promiseArray.push(new Promise(function(resolve, reject) {
+            resolve(object.data.selftext)
+        }))
     }
 }
 
-function printTableandReturnToMenu(aTable, callback) {
-    console.log(aTable.toString())
-    callback();
-}
-
-
 function reddit() {
-    var menuChoices = [{
-        name: 'Show homepage',
-        value: 'HOMEPAGE'
-    }, {
-        name: 'Show subreddit',
-        value: 'SUBREDDIT'
-    }, {
-        name: 'List subreddits',
-        value: 'SUBREDDITS'
-    }, {
-        name: 'Display user history',
-        value: 'USER'
-    }, {
-        name: 'Print images from front page',
-        value: 'PRINT'
-    }];
-
-
     inquirer.prompt({
         type: 'list',
         name: 'menu',
@@ -58,29 +111,7 @@ function reddit() {
         choices: menuChoices
     }).then(function(answers) {
         if (answers.menu === "HOMEPAGE") {
-            var newQuestion = [];
-            console.log(answers)
-            parseReddit.getHomepage(function(res) {
-                res.forEach(function(post) {
-                        newQuestion.push({
-                            name: post.data.title,
-                            value: post.data.url
-                        })
-                    }) //End of forEach.
-
-
-
-                inquirer.prompt({
-                    type: 'list',
-                    name: 'choices',
-                    message: 'CHOOSE',
-                    choices: newQuestion
-                }).then(function(answers) {
-                    console.log(answers.choices)
-                    reddit();
-                })
-            });
-
+            redditDisplay(parseReddit.getHomepage);
         }
 
         if (answers.menu === "SUBREDDIT") {
@@ -112,20 +143,24 @@ function reddit() {
             })
         }
 
+        if (answers.menu === "SUBREDDITS"){
+             subredditsDisplay();  
+        }
 
-        if (answers.menu === "USER") {
-            prompt.start();
-            prompt.message = "What user shall we look up?";
-            prompt.get(['user'], function(err, result) {
-                parseReddit.getUser(result.user, function(result) {
-                    var table = new Table();
-                    result.forEach(function(each) {
-                        table.push([each.data.author, each.data.body])
-                    });
-                    printTableandReturnToMenu(table, reddit);
+
+            if (answers.menu === "USER") {
+                prompt.start();
+                prompt.message = "What user shall we look up?";
+                prompt.get(['user'], function(err, result) {
+                    parseReddit.getUser(result.user, function(result) {
+                        var table = new Table();
+                        result.forEach(function(each) {
+                            table.push([each.data.subreddit, each.data.score, each.data.body])
+                        });
+                        console.log(table.toString());
+                    })
                 })
-            })
-        } //end of USER
+            } //end of USER
 
         if (answers.menu === "PRINT") {
             console.log("Placeholder text")
