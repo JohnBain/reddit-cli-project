@@ -4,6 +4,7 @@ var inquirer = require('inquirer');
 var util = require('util');
 var parseReddit = require('./reddit.js')
 var Table = require('cli-table');
+var colors = require('colors');
 const imagetoAscii = require('image-to-ascii'),
     stringify = require("asciify-pixel-matrix");
 
@@ -19,9 +20,6 @@ var menuChoices = [{
 }, {
     name: 'Display user history',
     value: 'USER'
-}, {
-    name: 'Print images from front page',
-    value: 'PRINT'
 }];
 
 
@@ -117,27 +115,6 @@ function subredditDisplay(subreddit) {
     })
 }
 
-/*
-function parseImageOrBody(object, callback) {
-    var promiseArray = [];
-    if (object.data.thumbnail.slice(-3) === "jpg") {
-        imagetoAscii(object.data.thumbnail, {
-            bg: true
-        }, function(err, result) { //This is a place for promises.
-            promiseArray.push(new Promise(function(resolve, reject) {
-                resolve(object.data.thumbnail)
-            }))
-        });
-    }
-
-    else {
-        promiseArray.push(new Promise(function(resolve, reject) {
-            resolve(object.data.selftext)
-        }))
-    }
-}
-*/
-
 function reddit() {
     inquirer.prompt({
         type: 'list',
@@ -167,18 +144,15 @@ function reddit() {
             prompt.message = "What user shall we look up?";
             prompt.get(['user'], function(err, result) {
                 parseReddit.getUser(result.user, function(result) {
-                    var table = new Table();
                     result.forEach(function(each) {
-                        table.push([each.data.subreddit, each.data.score, each.data.body])
+                        console.log(colors.red(each.data.score + " upvotes in subreddit ") + (colors.red.underline("/r/" + each.data.subreddit) + ":"))
+                        console.log(colors.blue(each.data.body));
                     });
-                    console.log(table.toString());
+                    
                 })
             })
         } //end of USER
 
-        if (answers.menu === "PRINT") {
-            console.log("Placeholder text")
-        }
 
 
 
